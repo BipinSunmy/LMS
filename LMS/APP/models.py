@@ -11,12 +11,12 @@ class Category(models.Model):
 class Book(models.Model):
     b_image = models.ImageField()
     title = models.CharField(max_length=200)
-    author_id = models.ForeignKey(Author,on_delete=models.SET_NULL)
+    author_id = models.ForeignKey(Author,on_delete=models.SET_NULL,null=True)
     description = models.CharField(max_length=300)
-    publication = models.ForeignKey(Publication,on_delete=models.SET_NULL)
+    publication = models.ForeignKey(Publication,on_delete=models.SET_NULL,null=True)
     dop = models.DateTimeField()
     price = models.PositiveIntegerField()
-    category = models.ForeignKey(Category,on_delete=models.SET_NULL)
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True  )
 class Whislist(models.Model):
     user_id = models.ForeignKey(User,on_delete=models.CASCADE)
     b_id = models.ForeignKey(Book,on_delete=models.CASCADE)

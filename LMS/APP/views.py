@@ -14,13 +14,18 @@ def user_login(request):
             cleaned_data = login_form.cleaned_data
             auth_user = authenticate(request,username=cleaned_data["username"],password = cleaned_data["password"])
             if auth_user is not None:
-                login(request,auth_user)
-                # group = auth_user.groups.first()
-                # group_name = group.name if group else "No Group"
-                # request.session['group_name'] = group_name
-                return redirect("home")
+                if auth_user.is_staff == 1:
+                    login(request,auth_user)
+                    # group = auth_user.groups.first()
+                    # group_name = group.name if group else "No Group"
+                    # request.session['group_name'] = group_name
+                    return redirect("admin_dashboard")
+                else:
+                    return HttpResponse("User")
             else:
                 return HttpResponse("Not Authenticated")
     else:
         login_form = MyLoginForm()
     return render(request,"useraccount/login.html",{"login_form":login_form})
+def admin_dashboard(request):
+    return render(request,"admin/dashboard.html")

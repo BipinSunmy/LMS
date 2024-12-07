@@ -1,0 +1,61 @@
+{% extends 'librarian/base.html' %}
+
+{% block style %}
+    <style>
+        .hover-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            background-color: #007bff;
+            color: white;
+        }
+        .hover-box {
+            transition: all 0.3s ease-in-out;
+        }
+        .full-height {
+            height: 15cm;
+            padding-top: 250px;
+        }
+        .nav{
+            background-color: black;
+        }
+        
+    </style>
+{% endblock %}
+
+
+{%block body%}
+    
+    {% include 'librarian/topbar.html' %}
+    <div class="container-fluid">
+        <div class="row g-4 full-height">
+            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                <a href="{% url 'addbook' %}" class="text-decoration-none w-100 h-100">
+                    <div class="card hover-box h-100 text-center">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h2 class="card-title">Add Book</h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                <a href="{% url 'ma' %}" class="text-decoration-none w-100 h-100">
+                    <div class="card hover-box h-100 text-center">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h2 class="card-title">Edit Book Details</h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                <a href="{%url 'mu'%}" class="text-decoration-none w-100 h-100">
+                    <div class="card hover-box h-100 text-center">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h2 class="card-title">Delete Book</h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

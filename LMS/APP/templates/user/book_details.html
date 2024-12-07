@@ -1,0 +1,38 @@
+{% extends 'librarian/base.html' %}
+
+{% block title %}
+    {{ book.title }} - Book Details
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Book Image and Details in Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ book.b_image.url }}" class="card-img-top" alt="{{ book.title }}">
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">{{ book.title }}</h3>
+                    <p class="card-text"><strong>Author:</strong> {{ book.author_id.a_name }}</p> 
+                    <p class="card-text"><strong>Category:</strong> {{ book.category.category }}</p> 
+                    <p class="card-text"><strong>Publication:</strong> {{ book.publication.publisher }}</p> 
+                    <p class="card-text"><strong>Description:</strong> {{ book.description }}</p>
+                    <p class="card-text"><strong>Price:</strong> ${{ book.price }}</p>
+                    <p class="card-text"><strong>Date of Publication:</strong> {{ book.dop|date:"F d, Y" }}</p>
+                    
+                </div>
+            </div><br><br>
+            <!-- Rent, Purchase, and Add to Cart Buttons -->
+            <div class="d-flex justify-content-start">
+                <a href="" class="btn btn-primary mr-2">Rent Book</a>
+                <a href="" class="btn btn-success mr-2">Purchase Book</a>
+                <a href="" class="btn btn-warning">Add to Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

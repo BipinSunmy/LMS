@@ -1,8 +1,11 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
 from .forms.login import MyLoginForm
 from.forms.registration import Registration
-from django.contrib.auth import authenticate,login
+from .forms.admin import Addbooks
+from django.contrib.auth import authenticate,login,logout
+from .models import Book
+
 # Create your views here.
 
 def Display(request):
@@ -28,8 +31,11 @@ def user_login(request):
     else:
         login_form = MyLoginForm()
     return render(request,"useraccount/login.html",{"login_form":login_form})
+def user_logout(request):
+    logout(request)
+    return redirect("home")
 def admin_dashboard(request):
-    return render(request,"admin/dashboard.html")
+    return render(request,"librarian/dashboard.html")
 def registration_view(request):
     if request.method == "POST":
         regis_form = Registration(request.POST)
@@ -41,3 +47,18 @@ def registration_view(request):
     else:
         regis_form = Registration()
     return render(request,"useraccount/registration.html",{"regis_form":regis_form})
+def managebooks_view(request):
+    return render(request,"librarian/managebooks/managebooks.html")
+def manageauthor_view(request):
+    return render(request,"librarian/manageauthor.html")
+def manageuser(request):
+    return render(request,"librarian/manageuser.html")
+def addbook(request):
+    book_d = Addbooks()
+    return render(request,"librarian/managebooks/addbooks.html",{"book_form":book_d})
+def home(request):
+    books = Book.objects.all()
+    return render(request,"user/home.html",{"book_list":books})
+def book_details(request,id):
+    book_detail = get_object_or_404(Book,id= id)
+    return render(request,"user/book_details.html",{"book":book_detail})

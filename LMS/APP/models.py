@@ -31,6 +31,19 @@ class Whislist(models.Model):
 class Cart(models.Model):
     user_id = models.ForeignKey(User,on_delete=models.CASCADE)
     b_id = models.ForeignKey(Book,on_delete=models.CASCADE)
+class Rental(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    rented_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateTimeField()
+    
+    def __str__(self):
+        return f'{self.user} rented {self.book.title}'
 
-
-
+class Purchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f'{self.user} purchased {self.book.title}'

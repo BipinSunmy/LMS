@@ -55,7 +55,7 @@ ROOT_URLCONF = "LMS.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'APP' / 'templates'],    ## was empty
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -79,7 +79,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "lms",
         "USER": "root",
-        "PASSWORD" : "BipinSunmy007",
+        "PASSWORD" : "Navrem2912!",
         "HOST" : "localhost",
         "PORT" : 3306
     }
@@ -130,3 +130,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 import os
 MEDIA_ROOT =os.path.join(BASE_DIR,'media')
 MEDIA_URL = "/media/"
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'

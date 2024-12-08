@@ -10,6 +10,9 @@ from .models import Cart
 from django.contrib.auth.decorators import login_required
 from .models import Payment
 from django.contrib import messages
+from django.db import transaction
+from .models import Stock
+
 
 # Create your views here.
 
@@ -161,11 +164,17 @@ def cart(request):
     # Retrieve the cart items for the logged-in user
     cart_items = Cart.objects.filter(user=request.user)
     
+    # Check stock availability for each item
+    for cart_item in cart_items:
+        book_stock = get_object_or_404(Stock, book=cart_item.book)
+        cart_item.available_stock = book_stock.available_quantity()  # Add available stock to cart item
+
     # Calculate the total price for the cart, considering the quantity
     total_price = sum(item.book.price * item.quantity for item in cart_items)
     
     # Render the cart page with the cart items and total price
     return render(request, 'user/cart.html', {'cart_items': cart_items, 'total_price': total_price})
+
 
 @login_required
 def add_to_cart(request, book_id):
@@ -226,10 +235,10 @@ def subscribe_view(request):
 
 @login_required
 def make_payment(request):
-    # Automatically populate payment_type and amount
-    payment_type = request.GET.get("payment_type", "purchase")  # Default to "purchase"
-    amount = request.GET.get("amount", 0)  # Default to 0 if not provided
-    
+    # Get the payment type and amount from query parameters
+    payment_type = request.GET.get("payment_type", "purchase")
+    amount = request.GET.get("amount", 0)
+
     if request.method == "POST":
         # Extract card details from form
         card_number = request.POST.get("card_number")
@@ -241,23 +250,42 @@ def make_payment(request):
             messages.error(request, "Please provide all payment details.")
             return redirect("make_payment")
 
+        # Validate that there is enough stock for all items in the cart
+        cart_items = Cart.objects.filter(user=request.user)
+        for cart_item in cart_items:
+            stock = get_object_or_404(Stock, book=cart_item.book)
+            if stock.available_quantity() < cart_item.quantity:
+                messages.error(request, f"Not enough stock for {cart_item.book.title}. Only {stock.available_quantity()} left.")
+                return redirect("cart")
+
+        # Proceed with the payment if everything is valid
         if len(card_number) == 16 and len(card_cvv) == 3:
-            # Payment successful, record it
+            # Record the successful payment
             Payment.objects.create(
                 user=request.user,
                 payment_type=payment_type,
                 amount=float(amount),
                 status="success"
             )
-            
-            # If this is a cart payment, clear the cart
+
+            # If this is a purchase, update the stock and clear the cart
             if payment_type == "purchase":
-                Cart.objects.filter(user=request.user).delete()
+                for cart_item in cart_items:
+                    stock = get_object_or_404(Stock, book=cart_item.book)
+                    
+                    # Correctly adjust stock by updating purchased_quantity and available_quantity
+                    stock.purchased_quantity += cart_item.quantity
+                    stock.available_quantity = stock.total_quantity - stock.rented_quantity - stock.purchased_quantity
+                    
+                    # Don't modify total_quantity
+                    stock.save()
+
+                Cart.objects.filter(user=request.user).delete()  # Clear the cart after purchase
 
             messages.success(request, "Payment successful!")
             return redirect("home")
         else:
-            # Payment failed, record it
+            # Handle payment failure
             Payment.objects.create(
                 user=request.user,
                 payment_type=payment_type,
@@ -267,11 +295,80 @@ def make_payment(request):
             messages.error(request, "Payment failed. Please check your card details.")
             return redirect("make_payment")
 
-    # Render payment form with populated data
     return render(request, "payment/make_payment.html", {
         "payment_type": payment_type,
         "amount": amount,
     })
+
+
+
+@login_required
+def purchase_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    stock = get_object_or_404(Stock, book=book)
+
+    if request.method == "POST":
+        requested_quantity = int(request.POST.get("quantity", 1))
+
+        if stock.available_quantity() >= requested_quantity:  # Use available_quantity()
+            try:
+                # Calculate the amount for the purchase
+                total_amount = book.price * requested_quantity
+
+                # Update stock in a transaction
+                with transaction.atomic():
+                    stock.purchased_quantity += requested_quantity
+                    stock.total_quantity -= requested_quantity
+                    stock.save()
+
+                    # Redirect to payment page to complete the transaction
+                    return redirect("make_payment")  # Pass total_amount and payment_type to make_payment page
+                
+            except Exception as e:
+                messages.error(request, f"An error occurred during the purchase: {e}")
+        else:
+            messages.error(request, f"Not enough stock available. Only {stock.available_quantity()} left.")  # Use available_quantity()
+
+        return redirect("home")
+
+    return render(request, "user/purchase_book.html", {"book": book, "stock": stock, "available_stock": stock.available_quantity()})
+
+@login_required
+def rent_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    stock = get_object_or_404(Stock, book=book)
+
+    if request.method == "POST":
+        requested_quantity = int(request.POST.get("quantity", 1))
+
+        if stock.available_stock >= requested_quantity:
+            try:
+                with transaction.atomic():
+                    # Update stock
+                    stock.rented_quantity += requested_quantity
+                    stock.total_quantity -= requested_quantity
+                    stock.save()
+
+                    # Record rent in payment history
+                    Payment.objects.create(
+                        user=request.user,
+                        payment_type="rent",
+                        amount=book.rental_price * requested_quantity,
+                        status="success"
+                    )
+
+                    messages.success(request, f"You successfully rented {requested_quantity} copies of '{book.title}'!")
+            except Exception as e:
+                messages.error(request, f"An error occurred during the rental: {e}")
+        else:
+            messages.error(request, f"Not enough stock available to rent. Only {stock.available_stock} left.")
+
+        return redirect("home")
+
+    return render(request, "user/rent_book.html", {"book": book, "stock": stock})
+
+
+
 
 
 

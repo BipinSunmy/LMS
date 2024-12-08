@@ -1,0 +1,35 @@
+{% extends 'librarian/base.html' %}
+
+{% block title %}Rent {{ book.title }}{% endblock %}
+
+{% block body %}
+{% include 'user/usertopbar.html' %}
+<div class="container mt-5">
+  <h1>Rent Book</h1>
+  <div class="card">
+    <div class="card-body">
+      <h2>{{ book.title }}</h2>
+      <p><strong>Author:</strong> {{ book.author }}</p>
+      <p><strong>Rental Price (per unit):</strong> ₹{{ book.rental_price }}</p>
+      <p><strong>Available Stock:</strong> {{ stock.available_stock }}</p>
+    </div>
+  </div>
+
+  <form method="POST" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity:</label>
+      <input 
+        type="number" 
+        id="quantity" 
+        name="quantity" 
+        min="1" 
+        max="{{ stock.available_stock }}" 
+        class="form-control" 
+        required>
+    </div>
+    <button type="submit" class="btn btn-primary">Rent</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

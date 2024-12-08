@@ -55,6 +55,19 @@ class Payment(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.payment_type} - {self.amount} - {self.status}"
 
+class Stock(models.Model):
+    book = models.OneToOneField(Book, on_delete=models.CASCADE)
+    total_quantity = models.PositiveIntegerField(default=0)  # Total books available
+    rented_quantity = models.PositiveIntegerField(default=0)  # Books currently rented
+    purchased_quantity = models.PositiveIntegerField(default=0)  # Books sold
+    
+    def available_quantity(self):
+        """Calculate available stock for rental or purchase."""
+        return self.total_quantity - (self.rented_quantity + self.purchased_quantity)
+
+    def __str__(self):
+        return f"Stock for {self.book.title}: {self.available_quantity()} available"
+
 
 class Wishlist(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)

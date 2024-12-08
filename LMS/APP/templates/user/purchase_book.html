@@ -1,0 +1,35 @@
+{% extends 'librarian/base.html' %}
+
+{% block title %}Purchase {{ book.title }}{% endblock %}
+
+{% block body %}
+{% include 'user/usertopbar.html' %}
+<div class="container mt-5">
+  <h1>Purchase Book</h1>
+  <div class="card">
+    <div class="card-body">
+      <h2>{{ book.title }}</h2>
+      <p><strong>Author:</strong> {{ book.author }}</p>
+      <p><strong>Price:</strong> ₹{{ book.price }}</p>
+      <p><strong>Available Stock:</strong> {{ available_stock }}</p>
+    </div>
+  </div>
+
+  <form method="POST" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity:</label>
+      <input 
+        type="number" 
+        id="quantity" 
+        name="quantity" 
+        min="1" 
+        max="{{ stock.available_stock }}" 
+        class="form-control" 
+        required>
+    </div>
+    <button href="{% url 'make_payment' %}?amount={{ total_price }}&payment_type=purchase" type="submit" class="btn btn-success">Purchase</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

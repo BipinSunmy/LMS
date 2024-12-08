@@ -25,5 +25,7 @@ urlpatterns = [
     path('cart/update_quantity/<int:cart_item_id>/', login_required(views.update_quantity), name='update_quantity'),
     path('subscribe/', login_required(views.subscribe_view), name='subscribe'),
     path('make_payment/', login_required(views.make_payment), name='make_payment'),
+    path('purchase-book/<int:book_id>/', login_required(views.purchase_book), name='purchase_book'),
+    path('rent-book/<int:book_id>/', login_required(views.rent_book), name='rent_book'),
     path("book_details/<int:id>/", book_details, name="book_details")  # No need for login protection here
 ]

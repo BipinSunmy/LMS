@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block body %}
-<h2 class="text-center my-5">Available Books</h2>
 
 {% if subscription and subscription.is_active %}
     <!-- Display full book list for subscribed users -->
     {% include 'user/usertopbar.html' %}
+    <h2 class="text-center my-5">Available Books</h2>
     <div class="container">
         <div class="row">
             {% for book in book_list %}
@@ -39,6 +39,7 @@
 {% else %}
     <!-- Display limited content and subscription prompt for non-subscribed users -->
     {% include 'user/guesttopbar.html' %}
+    <h2 class="text-center my-5">Available Books</h2>
     
     <div class="alert alert-info text-center">
         You have limited access to books. Please <a href="{% url 'subscribe' %}" class="btn btn-primary">subscribe</a> to get full access!

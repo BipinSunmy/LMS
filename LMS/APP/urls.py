@@ -16,8 +16,14 @@ urlpatterns = [
     path("manage_books/", login_required(managebooks_view), name="mb"),  # Protecting the manage books view
     path("addbooks/", login_required(addbook), name="addbook"),  # Protecting the add book view
     path('user_profile/', login_required(views.user_profile), name='user_profile'),
+    path('edit_profile/', login_required(views.edit_profile), name='edit_profile'),
+    path('change_password/', login_required(views.change_password), name='change_password'),
     path('wishlist/', login_required(views.wishlist), name='wishlist'),
     path('cart/', login_required(views.cart), name='cart'),
+    path('add-to-cart/<int:book_id>/', login_required(views.add_to_cart), name='add_to_cart'),
+    path('remove-from-cart/<int:cart_item_id>/', login_required(views.remove_from_cart), name='remove_from_cart'),
+    path('cart/update_quantity/<int:cart_item_id>/', login_required(views.update_quantity), name='update_quantity'),
     path('subscribe/', login_required(views.subscribe_view), name='subscribe'),
+    path('make_payment/', login_required(views.make_payment), name='make_payment'),
     path("book_details/<int:id>/", book_details, name="book_details")  # No need for login protection here
 ]

@@ -1,9 +1,16 @@
 <!-- user/subscribe.html -->
+{% extends "librarian/base.html" %}
+
+{% block title %}Change Password{% endblock %}
+
+{% block body %}
+{% include 'user/usertopbar.html' %}
 <h1>Choose a Subscription</h1>
 <form method="POST">
     {% csrf_token %}
     <button type="submit" name="subscription_type" value="silver" class="btn btn-primary">Silver (1 Month)</button>
     <button type="submit" name="subscription_type" value="gold" class="btn btn-primary">Gold (3 Months)</button>
     <button type="submit" name="subscription_type" value="platinum" class="btn btn-primary">Platinum (1 Year)</button>
+    <a href="{% url 'make_payment' %}">Make a Payment</a>
 </form>
-
+{% endblock %}

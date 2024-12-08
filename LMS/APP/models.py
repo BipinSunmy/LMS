@@ -32,10 +32,9 @@ class Book(models.Model):
     
     def __str__(self):
         return self.title
-
 class Wishlist(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    b_id = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User,on_delete=models.CASCADE)
+    b_id = models.ForeignKey(Book,on_delete=models.CASCADE)
 
 class Cart(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)

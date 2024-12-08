@@ -24,7 +24,9 @@ def user_login(request):
                 # Redirect user to the homepage or any page based on subscription status
                 if auth_user.is_staff:
                     return redirect("admin_dashboard")
-                return redirect("home")
+
+                else:
+                    return redirect("home")
             else:
                 return HttpResponse("Invalid Credentials")
     else:
@@ -56,7 +58,15 @@ def manageauthor_view(request):
 def manageuser(request):
     return render(request,"librarian/manageuser.html")
 def addbook(request):
-    book_d = Addbooks()
+    if request.method == "POST":
+        book_d = Addbooks(request.POST,request.FILES)
+        if book_d.is_valid():
+            book_isn = book_d.save(commit=False)
+            book_isn.dop = book_d.cleaned_data["dop"]
+            book_isn.save()
+            return render(request,"librarian/managebooks/addbooks.html")
+    else:
+        book_d = Addbooks()
     return render(request,"librarian/managebooks/addbooks.html",{"book_form":book_d})
 
 @login_required

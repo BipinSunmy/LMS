@@ -5,6 +5,8 @@ from.forms.registration import Registration
 from .forms.admin import Addbooks
 from django.contrib.auth import authenticate,login,logout
 from .models import Book
+from .models import Subscription
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -16,24 +18,26 @@ def user_login(request):
         login_form = MyLoginForm(request.POST)
         if login_form.is_valid():
             cleaned_data = login_form.cleaned_data
-            auth_user = authenticate(request,username=cleaned_data["username"],password = cleaned_data["password"])
+            auth_user = authenticate(request, username=cleaned_data["username"], password=cleaned_data["password"])
             if auth_user is not None:
-                if auth_user.is_staff == 1:
-                    login(request,auth_user)
-                    # group = auth_user.groups.first()
-                    # group_name = group.name if group else "No Group"
-                    # request.session['group_name'] = group_name
+                login(request, auth_user)
+                # Redirect user to the homepage or any page based on subscription status
+                if auth_user.is_staff:
                     return redirect("admin_dashboard")
+
                 else:
                     return redirect("home")
             else:
-                return HttpResponse("Not Authenticated")
+                return HttpResponse("Invalid Credentials")
     else:
         login_form = MyLoginForm()
-    return render(request,"useraccount/login.html",{"login_form":login_form})
+    return render(request, "useraccount/login.html", {"login_form": login_form})
+
+
 def user_logout(request):
     logout(request)
-    return redirect("home")
+    return redirect("home")  # Redirect to the homepage after logout
+
 def admin_dashboard(request):
     return render(request,"librarian/dashboard.html")
 def registration_view(request):
@@ -64,9 +68,94 @@ def addbook(request):
     else:
         book_d = Addbooks()
     return render(request,"librarian/managebooks/addbooks.html",{"book_form":book_d})
+
+@login_required
 def home(request):
-    books = Book.objects.all()
-    return render(request,"user/home.html",{"book_list":books})
+    subscription = None
+    books = Book.objects.all()  # Fetch all books, both for subscribers and non-subscribers
+
+    try:
+        # Attempt to fetch the user's subscription
+        subscription = Subscription.objects.get(user=request.user)
+        if not subscription.is_active:
+            # If the subscription is inactive, the user will still see the books but with limited functionality
+            pass
+    except Subscription.DoesNotExist:
+        # If no subscription exists, the user will still see the books but with limited functionality
+        pass
+
+    return render(request, "user/home.html", {"book_list": books, "subscription": subscription})
+
+
+
+
 def book_details(request,id):
     book_detail = get_object_or_404(Book,id= id)
     return render(request,"user/book_details.html",{"book":book_detail})
+
+from datetime import timedelta
+from django.utils import timezone
+
+def subscribe_user(request):
+    if request.method == 'POST':
+        subscription_type = request.POST.get('subscription_type')
+        if subscription_type == 'silver':
+            duration = timedelta(days=30)  # 1 month
+        elif subscription_type == 'gold':
+            duration = timedelta(days=90)  # 3 months
+        else:
+            duration = timedelta(days=365)  # 1 year
+        
+        # Calculate end date
+        end_date = timezone.now() + duration
+
+        # Create a subscription entry
+        Subscription.objects.create(user=request.user, subscription_type=subscription_type, end_date=end_date)
+        
+        # Redirect user or show success message
+        return redirect('home')
+    
+from django.shortcuts import render
+
+# Define your view for the user profile
+def user_profile(request):
+    # Example: fetching a user object or data related to the user
+    user = request.user  # Assuming you're using Django's built-in user model
+    return render(request, 'user_profile.html', {'user': user})
+
+def wishlist(request):
+    # Your view logic here
+    return render(request, 'user/wishlist.html')
+
+def cart(request):
+    # Your cart logic here
+    return render(request, 'user/cart.html')  # Update template name if necessary
+
+from django.shortcuts import render
+
+@login_required
+def subscribe_view(request):
+    if request.method == 'POST':
+        subscription_type = request.POST.get('subscription_type')
+        if subscription_type == 'silver':
+            duration = timedelta(days=30)  # 1 month
+        elif subscription_type == 'gold':
+            duration = timedelta(days=90)  # 3 months
+        else:
+            duration = timedelta(days=365)  # 1 year
+        
+        # Calculate end date
+        end_date = timezone.now() + duration
+
+        # Create a subscription entry
+        Subscription.objects.create(user=request.user, subscription_type=subscription_type, end_date=end_date)
+        
+        # Redirect user or show success message
+        return redirect('home')
+
+    return render(request, "user/subscribe.html")
+
+
+
+
+

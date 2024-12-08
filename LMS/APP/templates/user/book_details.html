@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block body %}
+{% include 'user/usertopbar.html' %}
 <div class="container mt-5">
     <div class="row">
         <!-- Book Image and Details in Card -->
@@ -21,7 +22,7 @@
                     <p class="card-text"><strong>Category:</strong> {{ book.category.category }}</p> 
                     <p class="card-text"><strong>Publication:</strong> {{ book.publication.publisher }}</p> 
                     <p class="card-text"><strong>Description:</strong> {{ book.description }}</p>
-                    <p class="card-text"><strong>Price:</strong> ${{ book.price }}</p>
+                    <p class="card-text"><strong>Price:</strong> ₹{{ book.price }}</p>
                     <p class="card-text"><strong>Date of Publication:</strong> {{ book.dop|date:"F d, Y" }}</p>
                     
                 </div>

@@ -25,7 +25,7 @@ def user_login(request):
                     # request.session['group_name'] = group_name
                     return redirect("admin_dashboard")
                 else:
-                    return HttpResponse("User")
+                    return redirect("home")
             else:
                 return HttpResponse("Not Authenticated")
     else:
@@ -54,7 +54,15 @@ def manageauthor_view(request):
 def manageuser(request):
     return render(request,"librarian/manageuser.html")
 def addbook(request):
-    book_d = Addbooks()
+    if request.method == "POST":
+        book_d = Addbooks(request.POST,request.FILES)
+        if book_d.is_valid():
+            book_isn = book_d.save(commit=False)
+            book_isn.dop = book_d.cleaned_data["dop"]
+            book_isn.save()
+            return render(request,"librarian/managebooks/addbooks.html")
+    else:
+        book_d = Addbooks()
     return render(request,"librarian/managebooks/addbooks.html",{"book_form":book_d})
 def home(request):
     books = Book.objects.all()

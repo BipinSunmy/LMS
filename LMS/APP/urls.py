@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import home,user_login,admin_dashboard,registration_view,user_logout,manageauthor_view,managebooks_view,manageuser,addbook,book_details
+from .views import home,user_login,admin_dashboard,registration_view,user_logout,manageauthor_view,managebooks_view,manageuser,addbook,book_details,edit_book,select_book,delete_book,addauthor,editauthor,adduser,edituser,deleteuser,user_profile,edit_profile,change_password,wishlist,cart,add_to_cart,remove_from_cart,update_quantity,purchase_book,make_payment,rent_book,subscribe_view,sub_payment
+from django.contrib.auth.decorators import login_required
 urlpatterns = [
     path("",home,name="home"),
     path("login/",user_login,name="login"),
@@ -10,5 +11,26 @@ urlpatterns = [
     path("manage_author/",manageauthor_view,name = "ma"),
     path("manage_books/",managebooks_view,name="mb"),
     path("addbooks/",addbook,name= "addbook"),
-    path("book_details/<int:id>/",book_details,name="book_details")
+    path("book_details/<int:id>/",book_details,name="book_details"),
+    path('selectbook/', select_book, name='select_book'),
+    path('editbook/<int:book_id>/', edit_book, name='edit_book'),
+    path('deletebook/', delete_book, name='delete_book'),
+    path('addauthor/',addauthor,name="addauthor"),
+    path("editauthor/", editauthor, name="edit_author"),
+    path("adduser/",adduser,name= "adduser"),
+    path("edituser/",edituser,name = "edituser"),
+    path("deleteuser/",deleteuser,name="deleteuser"),
+    path('user_profile/', login_required(user_profile), name='user_profile'),
+    path('edit_profile/', login_required(edit_profile), name='edit_profile'),
+    path('change_password/', login_required(change_password), name='change_password'),
+    path('wishlist/', login_required(wishlist), name='wishlist'),
+    path('cart/', login_required(cart), name='cart'),
+    path('add-to-cart/<int:book_id>/',login_required(add_to_cart), name='add_to_cart'),
+    path('remove-from-cart/<int:cart_item_id>/',remove_from_cart, name='remove_from_cart'),
+    path('cart/update_quantity/<int:cart_item_id>/', update_quantity, name='update_quantity'),
+    path('make_payment/', make_payment, name='make_payment'),
+    path('purchase-book/<int:book_id>/', login_required(purchase_book), name='purchase_book'),
+    path('rent-book/<int:book_id>/', login_required(rent_book), name='rent_book'),
+    path('subscribe/', login_required(subscribe_view), name='subscribe'),
+    path("Subcriberpayment/",sub_payment,name = "sub_payment")
 ]

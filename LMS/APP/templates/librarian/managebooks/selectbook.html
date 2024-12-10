@@ -1,0 +1,14 @@
+{% extends 'librarian/base.html' %}
+{% block title %}
+Select Book
+{% endblock %}
+{% block body %}
+<div class="container mt-5">
+    <h3>Select a Book to Edit</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Edit Selected Book</button>
+    </form>
+</div>
+{% endblock %}

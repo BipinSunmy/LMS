@@ -1,0 +1,51 @@
+{% extends 'librarian/base.html' %} 
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% load cart_extras %}
+
+{% block body %}
+{% include 'user/usertopbar.html' %}
+  <h1>Your Cart</h1>
+  
+  {% if cart_items %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Book Title</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+          <tr>
+            <td>{{ item.book.title }}</td>
+            <td>{{ item.book.price }}</td>
+            <td>
+              <form action="{% url 'update_quantity' item.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" name="action" value="decrease" class="btn btn-sm btn-warning">-</button>
+                {{ item.quantity }}
+                <button type="submit" name="action" value="increase" class="btn btn-sm btn-success">+</button>
+              </form>
+            </td>
+            <td>{{ item.book.price|multiply:item.quantity }}</td>
+            <td>
+              <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger">Remove</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <hr>
+    <h3>Total Price: ₹{{ total_price }}</h3>
+    <div>
+      <a href="{% url 'make_payment' %}?amount={{ total_price }}&payment_type=purchase" class="btn btn-primary">Checkout</a>
+    </div>
+  {% else %}
+    <p>Your cart is empty!</p>
+  {% endif %}
+{% endblock %}

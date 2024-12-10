@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block body %}
+{% include 'user/usertopbar.html' %}
 <h2 class="text-center my-5">Available Books</h2>
 
 <div class="container">
@@ -26,10 +27,7 @@
                     <h5 class="card-title">{{ book.title }}</h5>
                     <p class="card-text">{{ book.description|slice:":100" }}...</p> <!-- Display part of the description -->
                     <a href="{%url 'book_details' book.id%}" class="btn btn-info btn-block mb-2">View Details</a>
-                    <form action="" method="POST">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-warning btn-block">Add to Cart</button>
-                    </form>
+                    <a href="{% url 'add_to_cart' book.id %}"  class="btn btn-info btn-block mb-2">Add to Cart</a>
                 </div>
             </div>
         </div>

@@ -1,9 +1,7 @@
 from datetime import timezone
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
-
-
+from django.utils.timezone import now
 # Create your models here.
 class Author(models.Model):
     a_name = models.CharField(max_length=200)
@@ -35,11 +33,14 @@ class Book(models.Model):
 class Wishlist(models.Model):
     user_id = models.ForeignKey(User,on_delete=models.CASCADE)
     b_id = models.ForeignKey(Book,on_delete=models.CASCADE)
+class Carts(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)  # Optional
+    added_at = models.DateTimeField(auto_now_add=True)
 
-class Cart(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    b_id = models.ForeignKey(Book, on_delete=models.CASCADE)
-
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title}"
 class Rental(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
@@ -57,6 +58,38 @@ class Purchase(models.Model):
     def __str__(self):
         return f'{self.user} purchased {self.book.title}'
 
+class Stock(models.Model):
+    book = models.OneToOneField(Book, on_delete=models.CASCADE)
+    total_quantity = models.PositiveIntegerField(default=0)  # Total books available
+    rented_quantity = models.PositiveIntegerField(default=0)  # Books currently rented
+    purchased_quantity = models.PositiveIntegerField(default=0)  # Books sold
+    
+    def available_quantity(self):
+        """Calculate available stock for rental or purchase."""
+        return self.total_quantity - (self.rented_quantity + self.purchased_quantity)
+
+    def __str__(self):
+        return f"Stock for {self.book.title}: {self.available_quantity()} available"
+class Payment(models.Model):
+    PAYMENT_TYPES = [
+        ('subscription', 'Subscription'),
+        ('purchase', 'Purchase'),
+        ('rental', 'Rental'),
+    ]
+
+    STATUS_CHOICES = [
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateTimeField(default=now)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='success')  # Simulated
+
+    def __str__(self):
+        return f"{self.user.username} - {self.payment_type} - {self.amount} - {self.status}"
 class Subscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     subscription_type = models.CharField(
@@ -67,7 +100,7 @@ class Subscription(models.Model):
 
     def is_active(self):
         """Check if the subscription is still active."""
-        return self.end_date > timezone.now()  # Correctly using timezone.now()
+        return self.end_date > now()  # Correctly using timezone.now()
 
     def get_subscription_duration(self):
         """Return the duration of the subscription in months."""

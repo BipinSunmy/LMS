@@ -1,0 +1,19 @@
+{% extends "librarian/base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+{% include 'user/usertopbar.html' %}
+<div class="container mt-4">
+    <h2>Edit Profile</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+    
+    <a href="{% url 'user_profile' %}" class="btn btn-secondary mt-2">Back to Profile</a>
+</div>
+{% endblock %}

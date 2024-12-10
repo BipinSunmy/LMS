@@ -1,5 +1,5 @@
 {% extends 'librarian/base.html' %}
-
+{% load cart_extras %}
 {% block title %}
     {{ book.title }} - Book Details
 {% endblock %}
@@ -24,14 +24,19 @@
                     <p class="card-text"><strong>Description:</strong> {{ book.description }}</p>
                     <p class="card-text"><strong>Price:</strong> ₹{{ book.price }}</p>
                     <p class="card-text"><strong>Date of Publication:</strong> {{ book.dop|date:"F d, Y" }}</p>
-                    
                 </div>
-            </div><br><br>
+            </div>
+            <br><br>
             <!-- Rent, Purchase, and Add to Cart Buttons -->
             <div class="d-flex justify-content-start">
-                <a href="" class="btn btn-primary mr-2">Rent Book</a>
-                <a href="" class="btn btn-success mr-2">Purchase Book</a>
-                <a href="" class="btn btn-warning">Add to Cart</a>
+                <!-- For Rent -->
+                <a href="{% url 'rent_book' book.id%}" class="btn btn-primary mr-2">Rent Book</a> 
+
+                <!-- For Purchase -->
+                <a href="{% url 'purchase_book' book.id %}" class="btn btn-success mr-2">Purchase Book</a>
+
+                <!-- For Cart -->
+                <a href="{% url 'add_to_cart' book.id %}" class="btn btn-warning">Add to Cart</a>
             </div>
         </div>
     </div>
